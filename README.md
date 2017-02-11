@@ -1,24 +1,9 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This app works as a universal clipboard manager.
 
 Things you may want to cover:
 
-* Ruby version
+* Upload a file to get a public URL for this.
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* The link will be valid for 30 minutes.
