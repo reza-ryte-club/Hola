@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Boxes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Filename</th>
+      <th>Filepath</th>
+      <th>Date of expiry</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @boxes.each do |box| %>
+      <tr>
+        <td><%= box.filename %></td>
+        <td><%= box.filepath %></td>
+        <td><%= box.date_of_expiry %></td>
+        <td><%= link_to 'Show', box %></td>
+        <td><%= link_to 'Edit', edit_box_path(box) %></td>
+        <td><%= link_to 'Destroy', box, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Box', new_box_path %>
