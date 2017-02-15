@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Filename:</strong>
+  <%= @box.filename %>
+</p>
+
+<p>
+  <strong>Filepath:</strong>
+  <%= @box.filepath %>
+</p>
+
+<p>
+  <strong>Date of expiry:</strong>
+  <%= @box.date_of_expiry %>
+</p>
+
+<%= link_to 'Edit', edit_box_path(@box) %> |
+<%= link_to 'Back', boxes_path %>
