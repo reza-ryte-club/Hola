@@ -1,10 +1,59 @@
 <h1>Upload your link</h1>
 
 <%#= render 'form', box: @box %>
-
-<form action="demo_form.asp">
-  <input type="file" name="pic">
-  <input type="submit">
-</form>
-
+<%= form_for(@box, html: { class: 'directUpload', data: { 'form-data' => (@s3_direct_post.fields), 'url' => @s3_direct_post.url, 'host' => URI.parse(@s3_direct_post.url).host } }) do |f| %>
+  <div class="field">
+    <%= f.label :filepath %><br>
+    <%= f.file_field :filepath %>
+    <%= f.submit %>
+  </div>
+<% end %>
 <%= link_to 'Back', boxes_path %>
+<script>
+$(function() {
+  $('.directUpload').find("input:file").each(function(i, elem) {
+    var fileInput    = $(elem);
+    var form         = $(fileInput.parents('form:first'));
+    var submitButton = form.find('input[type="submit"]');
+    var progressBar  = $("<div class='bar'></div>");
+    var barContainer = $("<div class='progress'></div>").append(progressBar);
+    fileInput.after(barContainer);
+    console.log('hola')
+    // setInterval(function(){console.log(form.data('form-data'))},1000);
+    fileInput.fileupload({
+      fileInput:       fileInput,
+      url:             form.data('url'),
+      type:            'POST',
+      autoUpload:       true,
+      formData:         form.data('form-data'),
+      paramName:        'file', // S3 does not like nested name fields i.e. name="user[avatar_url]"
+      dataType:         'XML',  // S3 returns XML if success_action_status is set to 201
+      replaceFileInput: false,
+      done: function(e, data) {
+        submitButton.prop('disabled', false);
+        progressBar.text("Uploading done");
+
+        // extract key and generate URL from response
+        var key   = $(data.jqXHR.responseXML).find("Key").text();
+        var url   = 'https://s3-ap-southeast-1.amazonaws.com/oneclip/'+ key;
+        console.log("key");
+        console.log(key);
+        console.log("url");
+        console.log(url);
+
+        // create hidden field
+        var input = $("<input />", { type:'hidden', name: fileInput.attr('name'), value: url })
+        form.append(input);
+      }
+      // success: function(result, textStatus, jqXHR){
+      //   console.log("result ")
+      //   console.log(result)
+      //   // console.log(result.document.PostResponse.Key)
+      //   console.log("textStatus ")
+      //   console.log(textStatus)
+      //   console.log("jqXHR ")
+      //   console.log(jqXHR)
+      //}
+    });
+  });
+});</script>

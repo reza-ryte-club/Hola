@@ -1,5 +1,13 @@
+require 'aws-sdk'
+
 class BoxesController < ApplicationController
+  s3 = Aws::S3::Client.new
+  resp = s3.list_buckets
+  resp.each {|bucket| S3_BUCKET = bucket.buckets[0]["name"]}
+  puts "holaaa"
+  S3_BUCKET = Aws::S3::Resource.new.bucket(ENV['S3_BUCKET'])
   before_action :set_box, only: [:show, :edit, :update, :destroy]
+  before_action :set_s3_direct_post, only: [:new, :edit, :create, :update]
 
   # GET /boxes
   # GET /boxes.json
@@ -70,5 +78,9 @@ class BoxesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def box_params
       params.require(:box).permit(:filename, :filepath, :date_of_expiry)
+    end
+
+    def set_s3_direct_post
+    @s3_direct_post = S3_BUCKET.presigned_post(key: "uploads/#{SecureRandom.uuid}/${filename}", success_action_status: '201', acl: 'public-read')
     end
 end
