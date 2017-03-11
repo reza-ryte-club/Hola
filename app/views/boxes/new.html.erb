@@ -36,24 +36,21 @@ $(function() {
         // extract key and generate URL from response
         var key   = $(data.jqXHR.responseXML).find("Key").text();
         var url   = 'https://s3-ap-southeast-1.amazonaws.com/oneclip/'+ key;
-        console.log("key");
-        console.log(key);
-        console.log("url");
-        console.log(url);
-
+        let fileData = {filepath: url};
+        $.ajax({
+          type: "POST",
+               url: "/boxes.json",
+               contentType: "application/json; charset=utf-8",
+               dataType: "json",
+               data: JSON.stringify(fileData)
+        })
+        .done(function( msg ) {
+          alert( "Data Saved: ");
+        });
         // create hidden field
         var input = $("<input />", { type:'hidden', name: fileInput.attr('name'), value: url })
         form.append(input);
       }
-      // success: function(result, textStatus, jqXHR){
-      //   console.log("result ")
-      //   console.log(result)
-      //   // console.log(result.document.PostResponse.Key)
-      //   console.log("textStatus ")
-      //   console.log(textStatus)
-      //   console.log("jqXHR ")
-      //   console.log(jqXHR)
-      //}
     });
   });
 });</script>
