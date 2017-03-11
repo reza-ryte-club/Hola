@@ -33,7 +33,8 @@ class BoxesController < ApplicationController
   # POST /boxes.json
   def create
     @box = Box.new(box_params)
-
+    #30 minutes later
+    @box.date_of_expiry = DateTime.now + (1.0/48)
     respond_to do |format|
       if @box.save
         format.html { redirect_to @box, notice: 'Box was successfully created.' }
