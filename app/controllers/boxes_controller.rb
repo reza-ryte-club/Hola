@@ -32,10 +32,20 @@ class BoxesController < ApplicationController
     @box = Box.new(box_params)
     # 30 minutes later
     # @box.date_of_expiry = DateTime.now + (1.0 / 48)
+    @base_url = request.base_url
+    @base_domain = request.domain
+    puts "base url"
+    puts @base_url
+    puts "base domain"
+    puts @base_domain
+    last_box = Box.last(1)
     @box.date_of_expiry = Time.now + 1800
+    @box.short_file = generate_random_url(last_box[0].id)
     respond_to do |format|
       if @box.save
-        format.json { render :show, status: :created, location: @box }
+        message = {filepath: @box.short_file, base_url: @base_url}
+        # format.json { render :show, status: :created, location: @box }
+        format.json { render json: message, status: :created}
       else
         format.json { render json: @box.errors, status: :unprocessable_entity }
       end
@@ -98,5 +108,11 @@ class BoxesController < ApplicationController
 
     def set_s3_direct_post
       @s3_direct_post = S3_BUCKET.presigned_post(key: "uploads/#{SecureRandom.uuid}/${filename}", success_action_status: '201', acl: 'public-read')
+    end
+
+    def generate_random_url(id)
+      timestamp = Time.now.to_i
+      result = id.to_s+'lls'+rand(timestamp.to_i..timestamp.to_i+1000.0).to_i.to_s
+      return result
     end
 end
