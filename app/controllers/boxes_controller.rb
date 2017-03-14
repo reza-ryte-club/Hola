@@ -31,7 +31,8 @@ class BoxesController < ApplicationController
   def create
     @box = Box.new(box_params)
     # 30 minutes later
-    @box.date_of_expiry = DateTime.now + (1.0 / 48)
+    # @box.date_of_expiry = DateTime.now + (1.0 / 48)
+    @box.date_of_expiry = Time.now + 1800
     respond_to do |format|
       if @box.save
         format.json { render :show, status: :created, location: @box }
@@ -62,6 +63,23 @@ class BoxesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to boxes_url, notice: 'Box was destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def get_the_file
+    short_file = params[:id]
+    the_box = Box.find_by(short_file: short_file)
+    message = {'message'=> 'file not found'}
+    if the_box
+      if Time.now.getgm > the_box.date_of_expiry
+        message = {'message'=> 'file expired'}
+        render json: message
+      else
+        the_file = the_box.filepath
+        redirect_to the_file
+      end
+    else
+      render json: message
     end
   end
 
