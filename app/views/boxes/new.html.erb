@@ -3,12 +3,9 @@
 <%#= render 'form', box: @box %>
 <%= form_for(@box, html: { class: 'directUpload', data: { 'form-data' => (@s3_direct_post.fields), 'url' => @s3_direct_post.url, 'host' => URI.parse(@s3_direct_post.url).host } }) do |f| %>
   <div class="field">
-    <%= f.label :filepath %><br>
     <%= f.file_field :filepath %>
-    <%= f.submit %>
   </div>
 <% end %>
-<%= link_to 'Back', boxes_path %>
 <script>
 $(function() {
   $('.directUpload').find("input:file").each(function(i, elem) {
@@ -45,7 +42,9 @@ $(function() {
                data: JSON.stringify(fileData)
         })
         .done(function( msg ) {
-          alert( "Data Saved: ");
+          filepath = msg.filepath;
+          base_url = msg.base_url;
+          sweetAlert( "Your file: "+base_url+"/bx.f/"+filepath);
         });
         // create hidden field
         var input = $("<input />", { type:'hidden', name: fileInput.attr('name'), value: url })
