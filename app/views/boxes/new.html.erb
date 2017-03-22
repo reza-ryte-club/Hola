@@ -27,6 +27,7 @@ $(function() {
       dataType:         'XML',  // S3 returns XML if success_action_status is set to 201
       replaceFileInput: false,
       done: function(e, data) {
+        console.log(data.jqXHR.responseXML);
         submitButton.prop('disabled', false);
         progressBar.text("Uploading done");
 
