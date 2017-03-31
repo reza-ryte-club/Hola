@@ -5,29 +5,15 @@ class BoxesController < ApplicationController
   S3_BUCKET = Aws::S3::Resource.new.bucket(ENV['S3_BUCKET'])
   before_action :set_box, only: [:show, :edit, :update, :destroy]
   before_action :set_s3_direct_post, only: [:new, :edit, :create, :update]
-
-  # GET /boxes
-  # GET /boxes.json
+  
   def index
     @boxes = Box.all
   end
 
-  # GET /boxes/1
-  # GET /boxes/1.json
-  # def show
-  #   # code related to the
-  # end
-  # GET /boxes/new
   def new
     @box = Box.new
   end
 
-  # GET /boxes/1/edit
-  # def edit
-  # end
-
-  # POST /boxes
-  # POST /boxes.json
   def create
     @box = Box.new(box_params)
     @base_url = request.base_url
@@ -83,7 +69,6 @@ class BoxesController < ApplicationController
           # Delete the file from the s3
           delete_from_s3()
         end
-
       else
         the_file = the_box.filepath
         redirect_to the_file
