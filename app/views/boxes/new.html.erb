@@ -3,12 +3,9 @@
 <%#= render 'form', box: @box %>
 <%= form_for(@box, html: { class: 'directUpload', data: { 'form-data' => (@s3_direct_post.fields), 'url' => @s3_direct_post.url, 'host' => URI.parse(@s3_direct_post.url).host } }) do |f| %>
   <div class="field">
-    <%= f.label :filepath %><br>
     <%= f.file_field :filepath %>
-    <%= f.submit %>
   </div>
 <% end %>
-<%= link_to 'Back', boxes_path %>
 <script>
 $(function() {
   $('.directUpload').find("input:file").each(function(i, elem) {
@@ -30,30 +27,30 @@ $(function() {
       dataType:         'XML',  // S3 returns XML if success_action_status is set to 201
       replaceFileInput: false,
       done: function(e, data) {
+        console.log(data.jqXHR.responseXML);
         submitButton.prop('disabled', false);
         progressBar.text("Uploading done");
 
         // extract key and generate URL from response
         var key   = $(data.jqXHR.responseXML).find("Key").text();
         var url   = 'https://s3-ap-southeast-1.amazonaws.com/oneclip/'+ key;
-        console.log("key");
-        console.log(key);
-        console.log("url");
-        console.log(url);
-
+        let fileData = {filepath: url};
+        $.ajax({
+          type: "POST",
+               url: "/boxes.json",
+               contentType: "application/json; charset=utf-8",
+               dataType: "json",
+               data: JSON.stringify(fileData)
+        })
+        .done(function( msg ) {
+          filepath = msg.filepath;
+          base_url = msg.base_url;
+          sweetAlert( "Your file: "+base_url+"/bx.f/"+filepath);
+        });
         // create hidden field
         var input = $("<input />", { type:'hidden', name: fileInput.attr('name'), value: url })
         form.append(input);
       }
-      // success: function(result, textStatus, jqXHR){
-      //   console.log("result ")
-      //   console.log(result)
-      //   // console.log(result.document.PostResponse.Key)
-      //   console.log("textStatus ")
-      //   console.log(textStatus)
-      //   console.log("jqXHR ")
-      //   console.log(jqXHR)
-      //}
     });
   });
 });</script>

@@ -13,6 +13,7 @@
 // = require jquery
 //= require jquery_ujs
 //= require widget
+//= require sweetalert
 //= require jquery.fileupload
 //= require turbolinks
 //= require_tree .

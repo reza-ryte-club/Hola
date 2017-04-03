@@ -18,7 +18,9 @@ ActiveRecord::Schema.define(version: 20170214183017) do
   create_table "boxes", force: :cascade do |t|
     t.string   "filename"
     t.string   "filepath"
+    t.string   "short_file"
     t.datetime "date_of_expiry"
+    t.boolean  "is_deleted"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
   end
