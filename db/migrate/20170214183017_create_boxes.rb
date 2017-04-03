@@ -5,6 +5,7 @@ class CreateBoxes < ActiveRecord::Migration[5.0]
       t.string :filepath
       t.string :short_file
       t.datetime :date_of_expiry
+      t.boolean :is_deleted
       t.timestamps
     end
   end

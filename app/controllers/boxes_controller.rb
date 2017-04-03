@@ -6,45 +6,24 @@ class BoxesController < ApplicationController
   before_action :set_box, only: [:show, :edit, :update, :destroy]
   before_action :set_s3_direct_post, only: [:new, :edit, :create, :update]
 
-  # GET /boxes
-  # GET /boxes.json
   def index
     @boxes = Box.all
   end
 
-  # GET /boxes/1
-  # GET /boxes/1.json
-  # def show
-  #   # code related to the
-  # end
-  # GET /boxes/new
   def new
     @box = Box.new
   end
 
-  # GET /boxes/1/edit
-  # def edit
-  # end
-
-  # POST /boxes
-  # POST /boxes.json
   def create
     @box = Box.new(box_params)
-    # 30 minutes later
-    # @box.date_of_expiry = DateTime.now + (1.0 / 48)
     @base_url = request.base_url
-    @base_domain = request.domain
-    puts "base url"
-    puts @base_url
-    puts "base domain"
-    puts @base_domain
-    last_box = Box.last(1)
+    last_box = Box.count>0? Box.last(1):[{id: 0}]
     @box.date_of_expiry = Time.now + 1800
-    @box.short_file = generate_random_url(last_box[0].id)
+    @box.short_file = Box.count>0?generate_random_url(last_box[0].id):generate_random_url(0)
+    @box.is_deleted = false
     respond_to do |format|
       if @box.save
         message = {filepath: @box.short_file, base_url: @base_url}
-        # format.json { render :show, status: :created, location: @box }
         format.json { render json: message, status: :created}
       else
         format.json { render json: @box.errors, status: :unprocessable_entity }
@@ -84,6 +63,14 @@ class BoxesController < ApplicationController
       if Time.now.getgm > the_box.date_of_expiry
         message = {'message'=> 'file expired'}
         render json: message
+        # Check whether the file is deleted
+        unless the_box.is_deleted
+          puts 'file is not deleted hmmmph'
+          # Delete the file from the s3
+          # get the key value of the deleted file
+          the_box.filepath.slice! ENV['AWS_URL']
+          delete_from_s3(the_box.filepath)
+        end
       else
         the_file = the_box.filepath
         redirect_to the_file
@@ -94,14 +81,11 @@ class BoxesController < ApplicationController
   end
 
   private
-
     # Use callbacks to share common setup or constraints between actions.
     def set_box
       @box = Box.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet,
-    # only allow the white list through.
     def box_params
       params.require(:box).permit(:filename, :filepath, :date_of_expiry)
     end
@@ -114,5 +98,18 @@ class BoxesController < ApplicationController
       timestamp = Time.now.to_i
       result = id.to_s+'lls'+rand(timestamp.to_i..timestamp.to_i+1000.0).to_i.to_s
       return result
+    end
+
+    def delete_from_s3 (key)
+      S3_BUCKET.delete_objects({
+        delete: {
+          objects: [
+            {
+              key: key
+            },
+          ],
+          quiet: false,
+        }
+        })
     end
 end
