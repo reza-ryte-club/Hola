@@ -5,7 +5,7 @@ class BoxesController < ApplicationController
   S3_BUCKET = Aws::S3::Resource.new.bucket(ENV['S3_BUCKET'])
   before_action :set_box, only: [:show, :edit, :update, :destroy]
   before_action :set_s3_direct_post, only: [:new, :edit, :create, :update]
-  
+
   def index
     @boxes = Box.all
   end
@@ -67,7 +67,9 @@ class BoxesController < ApplicationController
         unless the_box.is_deleted
           puts 'file is not deleted hmmmph'
           # Delete the file from the s3
-          delete_from_s3()
+          # get the key value of the deleted file
+          the_box.filepath.slice! ENV['AWS_URL']
+          delete_from_s3(the_box.filepath)
         end
       else
         the_file = the_box.filepath
@@ -98,20 +100,16 @@ class BoxesController < ApplicationController
       return result
     end
 
-    def delete_from_s3
+    def delete_from_s3 (key)
       S3_BUCKET.delete_objects({
-        delete: { # required
-          objects: [ # required
+        delete: {
+          objects: [
             {
-              key: "ObjectKey", # required
+              key: key
             },
           ],
           quiet: false,
-        },
-        mfa: "MFA",
-        request_payer: "requester", # accepts requester
-        use_accelerate_endpoint: false,
+        }
         })
-      puts 'done, did that '
     end
 end
