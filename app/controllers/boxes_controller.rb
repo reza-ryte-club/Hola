@@ -31,30 +31,6 @@ class BoxesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /boxes/1
-  # PATCH/PUT /boxes/1.json
-  def update
-    respond_to do |format|
-      if @box.update(box_params)
-        format.html { redirect_to @box, notice: 'Box was updated.' }
-        format.json { render :show, status: :ok, location: @box }
-      else
-        format.html { render :edit }
-        format.json { render json: @box.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /boxes/1
-  # DELETE /boxes/1.json
-  def destroy
-    @box.destroy
-    respond_to do |format|
-      format.html { redirect_to boxes_url, notice: 'Box was destroyed.' }
-      format.json { head :no_content }
-    end
-  end
-
   def get_the_file
     short_file = params[:id]
     the_box = Box.find_by(short_file: short_file)
@@ -68,6 +44,8 @@ class BoxesController < ApplicationController
           puts 'file is not deleted hmmmph'
           # Delete the file from the s3
           # get the key value of the deleted file
+          the_box.is_deleted = true
+          the_box.save
           the_box.filepath.slice! ENV['AWS_URL']
           delete_from_s3(the_box.filepath)
         end
@@ -110,6 +88,6 @@ class BoxesController < ApplicationController
           ],
           quiet: false,
         }
-        })
+      })
     end
 end
